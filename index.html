@@ -59,7 +59,7 @@ data-function="testmodule.testfunc1"
             <h3>Step 2. Writing module</h3>
             <?prettify lang=js?>
             <pre class="prettyprint" style="padding-left: 10px;">
-// contents of testmodule.js
+// contents of alljs.testmodule.js
 'use strict';
 
 var testmodule = testmodule || {};
@@ -101,7 +101,7 @@ data-options-DEBUG_MODE="1"
     data-options-baz="foo"
 ></div></pre>
 
-            Result will be:
+            Contents of <b>alljs.options</b> object will be:
             <?prettify lang=js?>
             <pre class="prettyprint" style="padding-left: 10px;">
 Object {debug_mode: "1", init: function, foo: "bar", bar: "baz", baz: "foo"}</pre>
@@ -171,8 +171,8 @@ echo (mysql_escape_string(json_encode(array(
 <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
 <script src="google-code-prettify/src/run_prettify.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>
-<script src="all.js" ></script>
-<script src="testmodule.js" ></script>
+<script src="alljs.js" ></script>
+<script src="alljs.testmodule.js" ></script>
 
 </body>
 </html>
