@@ -8,14 +8,44 @@ var alljs = alljs || [];
 
 //-----------------------------------------------------------------------------
 
-/**
- * 	Options Object
- */
-if (!alljs.options) {
-	alljs.options = {
-		DEBUG_MODE: false
-	};
+alljs.options = alljs.options || {
+    debug_mode: false
 };
+
+/**
+ *  Initializing alljs with some options.
+ */
+alljs.options.init = function() {
+    var el = arguments[0];
+    var arr = [];
+    for (var i=0, attrs=el.attributes, l=attrs.length; i<l; i++){
+        var nodeName    = attrs.item(i).nodeName,
+            nodeValue   = attrs.item(i).nodeValue;
+
+        if ( nodeName.match(/data-options-/i) ) {
+            nodeName = nodeName.replace('data-options-', '')
+                               .replace('.', '_')
+                               .replace('-', '_')
+                               .trim();
+
+            alljs.options[nodeName] = nodeValue;
+        }
+    }
+    //console.log(alljs.options);
+};
+
+alljs.options.init_json = function () {
+    var el = arguments[0];
+    var options_json = alljs.system.data(el, 'options');
+    var parsed_json = JSON.parse(options_json);
+
+    for (var key in parsed_json){
+        alljs.options[key] = parsed_json[key];
+    }
+
+    //console.log(alljs.options);
+};
+
 //-----------------------------------------------------------------------------
 
 /**
@@ -26,24 +56,36 @@ alljs.system = alljs.system || {};
 
 // check if we in debug mode
 alljs.system.is_debug_mode = function () {
-	return (alljs.options.DEBUG_MODE && alljs.options.DEBUG_MODE === true);
+	return (alljs.options.debug_mode && alljs.options.debug_mode == true);
 };
 
-alljs.system.log_array = alljs.system.log_array || {};
+alljs.system.log_array = alljs.system.log_array || [];
 
 // logging some message
 alljs.system.log = function (message) {
-	alljs.system.is_debug_mode() && window.console && console.log(message);
+    alljs.system.log_array.push(message) && alljs.system.is_debug_mode() && window.console && console.log(message);
 };
 
 // logging warning
 alljs.system.warn = function (message) {
-	alljs.system.is_debug_mode() && window.console && console.warn(message);
+    alljs.system.log_array.push(message) && alljs.system.is_debug_mode() && window.console && console.warn(message);
 };
 
 // logging error
 alljs.system.error = function (message) {
-	alljs.system.is_debug_mode() && window.console && console.error(message);
+    alljs.system.log_array.push(message) && alljs.system.is_debug_mode() && window.console && console.error(message);
+};
+
+/**
+ * Getting value of data-tag
+ */
+alljs.system.data = function (element, name) {
+    var dataName = 'data-' + name;
+
+    /**
+     * @element Element
+     */
+    return element.getAttribute(dataName);
 };
 
 // checking that it is string and not empty
@@ -64,8 +106,6 @@ alljs.system.dispatch_element = function (element) {
 	var dispatch_object	= $(element);
 	var func_name = dispatch_object.data('function');
 
-    dispatch_object.removeClass('alljs-dispatcher').addClass('alljs-dispatcher-executed');
-
 	alljs.system.log("Executing: " + func_name);
 
     // Allow fn to be a function object or the name of a global function
@@ -78,8 +118,8 @@ alljs.system.dispatch_element = function (element) {
         }
     }
 
-    if ( fn ) {
-        return fn.apply(alljs, arguments || []);
+    if ( fn && typeof fn === 'function') {
+        return fn.apply(fn, arguments || []);
     }
 
     alljs.system.error('Function does not exists!');
@@ -99,39 +139,55 @@ alljs.system.dispatch = function ( container ) {
 	}
 
     $.each(elements, function(index, element){
+        $(element).removeClass('alljs-dispatcher').addClass('alljs-dispatcher-executed');
     	alljs.system.dispatch_element(element);
     });
 };
 
-alljs.system.showElement = function(obj, mode) {
-	var elem = typeof obj === "string" ? $(obj) : obj;
-
-	if (elem) {
-		if (!mode) {
-			if (!elem.is(':visible')) {
-				elem.show();
-			} else {
-				elem.hide();
-			}
-		} else {
-			if (mode == 1) {
-				elem.show();
-			} else {
-				elem.hide();
-			}
-		}
-	}
-};
-
 //-----------------------------------------------------------------------------
 // decoding array values from string
-Array.prototype.fromString = function ( str ) {
-	var values = str.split(","),
+Array.prototype.fromString = function ( str, delimiter ) {
+    if ( typeof delimiter == undefined ) {
+        delimiter = ",";
+    }
+	var values = str.split(delimiter),
 		value = null;
 
 	while (value = values.shift()) {
 		this.push(value);
 	}
+};
+
+//-----------------------------------------------------------------------------
+/**
+ * Example:
+ *      var array1 = ["Vijendra","Singh"];
+        var array2 = ["Singh", "Shakya"];
+        // Merges both arrays and gets unique items
+        var array3 = array1.concat(array2).unique();
+
+ * @returns {Array}
+ */
+Array.prototype.unique = function() {
+    var a = this.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+};
+
+//-----------------------------------------------------------------------------
+/**
+ * @param arr1
+ * @param arr2
+ * @returns {Array}
+ */
+alljs.system.mergeArrays = function( arr1, arr2 ) {
+    return arr1.concat(arr2).unique();
 };
 
 //-----------------------------------------------------------------------------

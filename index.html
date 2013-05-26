@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AllJS system Examples</title>
-    <link href="http://netdna.bootstrapcdn.com/bootswatch/2.3.1/spacelab/bootstrap.min.css" rel="stylesheet">
-    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
-    <script src="google-code-prettify/src/run_prettify.js"></script>
 </head>
 <body>
 <div class="container-fluid">
-    <h1 class="well">AllJS Dispatching</h1>
+    <h1 class="well">AllJS System</h1>
     <div class="row-fluid">
         <div class="span2">
             <ul class="nav nav-tabs nav-stacked">
@@ -20,8 +17,29 @@
         </div>
         <div class="span10">
 
-            <p>AllJS system allows to include JavaScript functionality into your project without inline javascript.
-                All functionality is concentrated in .js files</p>
+            <p>The system is designed to facilitate prototyping Javascript functionality to your project.
+                The advantages are that the system is actually the only one dependency: jQuery, which is used for easier DOM manipulation.
+                In addition, the benefits of the system are:
+                <ol>
+                    <li>Ability to wrap any other system or framework functionality and provide very easy layer between DOM and JavaScript functionality. No matter what you use: Backbone.js or jQuery with it's plugins or any other framework or library</li>
+                    <li>Ability to exclude all JavaScript code from html</li>
+                    <li>Ability to pass any number of arguments to a function in data-tags without necessity to write id of element and play with it</li>
+                    <li>Ability to include alljs file and modules in any order and don't worry about that</li>
+                    <li>Ability to to write your functionality (that can use any frameworks and libraries) using strong modular OOP structure </li>
+                    <li>Functionality that helps you to develop and debug</li>
+                    <li>Number of useful modules to solve certain problems</li>
+                </ol>
+
+                Do not forget that AllJS not a panacea, and is intended only to serve as a very thin layer between the actual JavaScript systems
+                and html-document<br><br>
+                Features that soon will be done:
+                <ul>
+                    <li>Remove jQuery dependency and make AllJS standalone</li>
+                </ul>
+            </p>
+
+            <hr>
+            <h2>Example #1</h2>
 
             <h3>Step 1. Initializing div, wich contains function name for execution</h3>
             <?prettify lang=html?>
@@ -33,7 +51,7 @@
 <script src="testmodule.js" ></script>
 
 <div
-class="alljs-dispatcher"
+class="alljs-dispatcher-"
 data-function="testmodule.testfunc1"
 ></div>
 </pre>
@@ -47,7 +65,7 @@ data-function="testmodule.testfunc1"
 var testmodule = testmodule || {};
 
 testmodule.testfunc1 = function() {
-    this.system.log('Test message');
+    alljs.system.log($(this).attr('class'));
 };
 </pre>
 
@@ -55,38 +73,106 @@ testmodule.testfunc1 = function() {
             <?prettify lang=js?>
             <pre class="prettyprint" style="padding-left: 10px;">
 Executing: testmodule.testfunc1
-Test message
+alljs-dispatcher-executed
 </pre>
 
+    <hr>
+    <h2>Example #2. Initializing options</h2>
+    <?prettify lang=js?>
+    <pre class="prettyprint" style="padding-left: 10px;">
+<div
+class="alljs-dispatcher-"
+data-function="alljs.options.init"
+data-options-DEBUG_MODE="1"
+></div>
+</pre>
 
+    <p>Since this will be dispatched - system will work in debug mode.
+        This means that everything will be logged and available in browser's console and also in array
+        <b>alljs.system.log_array</b>. You can also add some of your own one-dimensional options.
+        <br>For example:
+            <?prettify lang=js?>
+            <pre class="prettyprint" style="padding-left: 10px;">
+<div
+    class="alljs-dispatcher-"
+    data-function="alljs.options.init"
+    data-options-foo="bar"
+    data-options-bar="baz"
+    data-options-baz="foo"
+></div></pre>
 
+            Result will be:
+            <?prettify lang=js?>
+            <pre class="prettyprint" style="padding-left: 10px;">
+Object {debug_mode: "1", init: function, foo: "bar", bar: "baz", baz: "foo"}</pre>
+
+            If you need multi-dimensional options, you can do it with special initialization method for that:
+            <?prettify lang=js?>
+            <pre class="prettyprint" style="padding-left: 10px;">
+<div
+        class="alljs-dispatcher-"
+        data-function="alljs.options.init_json"
+        data-options='{"foo2": "bar2", "bar": {"baz": "endofjson"}}'
+        ></div></pre>
+
+            Result will be:
+            <?prettify lang=js?>
+            <pre class="prettyprint" style="padding-left: 10px;">
+bar: Object
+    baz: "endofjson"
+    __proto__: Object
+debug_mode: "0"
+foo2: "bar2"
+init: function () {...}
+init_json: function () {...}
+__proto__: Object</pre>
+
+            You can prepare this JSON from PHP:
+            <?prettify lang=php?>
+            <pre class="prettyprint" style="padding-left: 10px;">
+echo (mysql_escape_string(json_encode(array(
+	"foo2" => "bar2",
+	"bar" => array(
+		"baz" => "endofjson"
+	)
+))));</pre>
+    </p>
 
     </div>
 </div>
 
-<div class="alljs-dispatcher" data-function="testmodule.testfunc1"></div>
+<div
+    class="alljs-dispatcher"
+    data-function="testmodule.prettyprint.init"
+></div>
+<div
+    class="alljs-dispatcher"
+    data-function="alljs.options.init"
+    data-options-DEBUG_MODE="1"
+></div>
+<div
+    class="alljs-dispatcher"
+    data-function="alljs.options.init"
+    data-options-foo="bar"
+    data-options-bar="baz"
+    data-options-baz="foo"
+></div>
+<div
+    class="alljs-dispatcher"
+    data-function="alljs.options.init_json"
+    data-options='{"foo2": "bar2", "bar": {"baz": "endofjson"}}'
+></div>
+<div
+    class="alljs-dispatcher"
+    data-function="testmodule.testfunc1"
+></div>
 
+<link href="http://netdna.bootstrapcdn.com/bootswatch/2.3.1/spacelab/bootstrap.min.css" rel="stylesheet">
+<link href="http://netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.min.css" rel="stylesheet">
+<script src="google-code-prettify/src/run_prettify.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="all.js" ></script>
 <script src="testmodule.js" ></script>
 
-<script>//<![CDATA[
-
-var alljs = alljs || [];
-alljs.options = alljs.options || {};
-alljs.options.DEBUG_MODE = true;
-
-(function () {
-    function html(s) {
-        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
-
-    $.each( $('.prettyprint'), function(i, e) {
-        var _html = $(e).html();
-        $(e).html( html(_html) );
-    });
-})();
-//]]>
-</script>
 </body>
 </html>
