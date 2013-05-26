@@ -65,7 +65,7 @@ data-function="testmodule.testfunc1"
 var testmodule = testmodule || {};
 
 testmodule.testfunc1 = function() {
-    alljs.system.log($(this).attr('class'));
+    alljs.system.log($(arguments[0]).attr('class'));
 };
 </pre>
 
